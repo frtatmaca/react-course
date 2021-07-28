@@ -22,8 +22,7 @@ class EntryPage extends Component {
     render(){
         return (
             <Container>
-                <BaseForms />
-                
+                <BaseForms />                
             </Container>
         );
     }

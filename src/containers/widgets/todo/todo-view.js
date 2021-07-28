@@ -32,22 +32,25 @@ const TodoView = ({ value, isLoading, onChange, onSubmit, classes }) => {
       <TextField
         label="Todo"
         value={value.job}
-        name="todo"        
+        name="todo"
         onChange={onChange}
         margin="normal"
-        fullWidth        
-      />      
+        fullWidth
+      />
+
       <Button
         onClick={onSubmit}
-        variant="outlined"
+        variant={"outlined"}
         color="primary"
         fullWidth
         className={classes.button}
         disabled={!isFormEnabled}
         type="submit"
+        size="medium"
       >
         {isLoading ? <CircularProgress size={20} /> : 'Add Todo'}
       </Button>
+
     </form>
   );
 };

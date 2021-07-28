@@ -18,7 +18,6 @@ class BaseForms extends Component {
     }
 }
 
-
 BaseForms.propsTypes = {
     history: PropsTypes.object,
 }

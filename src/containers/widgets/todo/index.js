@@ -2,7 +2,7 @@ import "./todo.css";
 import React, { Component } from 'react';
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
-import PropTypes from 'prop-types';
+import PropTypes, { element } from 'prop-types';
 import _ from "lodash";
 import Snackbar from '@material-ui/core/Snackbar';
 
@@ -12,83 +12,75 @@ import * as userActions from '../../../reducers/actions/userActions';
 class TodoForm extends Component {
   constructor(props) {
     super(props);
-  }
 
+    this.renderTodoList = this.renderTodoList.bind(this);
+  }
+    
   state = {
+    todos: [],
     form: {
       todo: '',
     },
     isLoading: false,
     isSnackbarOpen: true,
     snackbarMessage: 'Hello React Course',
-  };
-
-  async componentDidMount() {
-    const user = {
-      user: {
-        id: 1903,
-        name: "fırat",
-        surname: "atmaca"
-      },
-      toDos: []
-    };
-
-    await this.props.actions.setUser(user);
   }
 
   async componentWillReceiveProps(nextProps) {
-    console.log("adasd: ", this.props.user);
+  }
+
+  async componentDidMount() {
+
+  }
+
+  onToggleSnackbar = ({ message = 'Error' }) => {
+    this.setState(
+      state => ({
+        isSnackbarOpen: !state.isSnackbarOpen,
+        snackbarMessage: message
+      })
+    )
   }
 
   onHandleChangeForm = event => {
     const { form } = this.state;
+
     form[event.target.name] = event.target.value;
     this.setState({ form });
-  };
-
-  onToggleSnackbar = ({ message = 'Error' }) => {
-    this.setState(state => ({
-      isSnackbarOpen: !state.isSnackbarOpen,
-      snackbarMessage: message,
-    }));
-  };
+  }
 
   onHandleSubmitForm = async event => {
     event.preventDefault();
 
     const { form } = this.state;
-
-    const isFormEmpty = Object.values(form).every(item => item === '');
-    if (isFormEmpty) {
+    const isFormEnabled = Object.values(form).every(item => item === '');
+    if (isFormEnabled) {
       return;
     }
-
+    
     try {
-      const todos = _.cloneDeep(this.props.user.toDos);
+      const todos= this.state.todos;
       todos.push(form.todo);
 
-      await this.props.actions.setTodos(todos);
-      await this.renderTodo(form.todo);
-    } catch (error) {
+      this.setState({ todos: todos });
+
+    } catch (err) {
 
     }
+  }
+
+  renderTodoList() {
+    return this.state.todos.map((element, index)=>{
+      return <li>{element}<span className={"icon"} onClick={async () => {await this.deleteTask(index)}}><i className={"fas fa-trash"}></i></span></li>;
+    }); 
   };
 
-  renderTodo = async () => {
-    const todoList = document.querySelector(".todo-list");
-    let newLiTag = "";
-    this.props.user.toDos.forEach((element, index) => {
-      newLiTag += `<li>${element}<span className="icon" onclick="deleteTask(${index})"><i className="fas fa-trash"></i></span></li>`;
-    });
-    todoList.innerHTML = newLiTag;
-  };
-
-  onToggleSnackbar = ({ message = 'Error' }) => {
-    this.setState(state => ({
-      isSnackbarOpen: !state.isSnackbarOpen,
-      snackbarMessage: message,
-    }));
-  };
+  deleteTask = async (index) => {
+    const array = this.state.todos;
+    array.splice(index, 1);
+    
+    this.setState({ todos: array });
+  }
 
   render() {
     const { form, isLoading, isSnackbarOpen, snackbarMessage } = this.state;
@@ -97,13 +89,14 @@ class TodoForm extends Component {
       <div>
 
         <div>
-          <div class="wrapper">
+          <div className="wrapper">
             <header>Todo App</header>
-            
-            <ul class="todo-list">
+
+            <ul className={"todo-list"}>
+              {this.renderTodoList()}
             </ul>
 
-            <div class="footer">
+            <div className="footer">
               <button>Clear All</button>
             </div>
           </div>
@@ -123,7 +116,8 @@ class TodoForm extends Component {
           onClose={this.onToggleSnackbar}
           ContentProps={{
             'aria-describedby': 'message-id',
-          }}
+          }
+          }
           message={<span id="message-id">{snackbarMessage}</span>}
         />
       </div>
@@ -136,13 +130,11 @@ TodoForm.propTypes = {
 };
 
 const mapStateToProps = state => ({
-  user: state.user,
 });
 
 const mapDispatchToProps = dispatch => ({
   actions: bindActionCreators(
     {
-      ...userActions,
     },
     dispatch
   )
